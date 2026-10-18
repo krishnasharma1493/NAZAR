@@ -1,0 +1,35 @@
+{
+  "mac": "28:18:fd:db:c2:f6",
+  "channel": 7,
+  "t0_ms": 4649.281707999762,
+  "sequence": [
+    1,
+    1,
+    1,
+    1,
+    0,
+    1,
+    0,
+    1,
+    1,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0
+  ],
+  "chip_s": 2.0,
+  "bin_ms": 100,
+  "repeats": 2,
+  "scan_id": "s_002",
+  "drops": {
+    "table_full": 0,
+    "serial": 0,
+    "late_bins": 0,
+    "unparsed": 78,
+    "malformed": 0
+  },
+  "t0_source": "planned",
+  "mode": "live"
+}

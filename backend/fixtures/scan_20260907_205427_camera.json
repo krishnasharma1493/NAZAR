@@ -1,0 +1,35 @@
+{
+  "mac": "28:18:fd:db:c2:f6",
+  "channel": 7,
+  "t0_ms": 22300.873042000603,
+  "sequence": [
+    1,
+    1,
+    1,
+    1,
+    0,
+    1,
+    0,
+    1,
+    1,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0
+  ],
+  "chip_s": 2.0,
+  "bin_ms": 100,
+  "label": "camera",
+  "stimulus": "fullscreen_flash",
+  "lead_colour": "#000000",
+  "clock_offset_s": 11653.383792083,
+  "drops": {
+    "table_full": 0,
+    "serial": 0,
+    "late_bins": 0,
+    "unparsed": 47,
+    "malformed": 0
+  }
+}

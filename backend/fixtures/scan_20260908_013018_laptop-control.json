@@ -1,0 +1,35 @@
+{
+  "mac": "ca:01:63:56:e2:05",
+  "channel": 7,
+  "t0_ms": 23101.431458999286,
+  "sequence": [
+    1,
+    1,
+    1,
+    1,
+    0,
+    1,
+    0,
+    1,
+    1,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0
+  ],
+  "chip_s": 2.0,
+  "bin_ms": 100,
+  "label": "laptop-control",
+  "stimulus": "fullscreen_flash",
+  "lead_colour": "#000000",
+  "clock_offset_s": 24751.793526416,
+  "drops": {
+    "table_full": 0,
+    "serial": 0,
+    "late_bins": 0,
+    "unparsed": 49,
+    "malformed": 0
+  }
+}

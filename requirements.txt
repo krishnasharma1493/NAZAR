@@ -1,0 +1,22 @@
+# NAZAR backend dependencies.
+# Deliberately unpinned — see NAZAR_PRD.md Rule 2. Install latest, run pip-audit
+# once before 9 Sep. Resolved versions for this machine are recorded in the README.
+
+# Serial transport
+pyserial
+
+# Signal processing — matched filter, median detrend, permutation test
+numpy
+scipy
+
+# Classifier pre-filter
+scikit-learn
+
+# API layer (localhost only)
+fastapi
+uvicorn
+httpx        # required by fastapi's TestClient, used by test_pipeline.py
+
+# Evidence: SHA-256 + Ed25519 + PDF
+cryptography
+reportlab

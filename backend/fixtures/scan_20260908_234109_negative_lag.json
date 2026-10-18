@@ -1,0 +1,43 @@
+{
+ "mac": "28:18:fd:db:c2:f6",
+ "channel": 6,
+ "t0_ms": 7427.147154063277,
+ "sequence": [
+  1,
+  1,
+  1,
+  1,
+  0,
+  1,
+  0,
+  1,
+  1,
+  0,
+  0,
+  1,
+  0,
+  0,
+  0
+ ],
+ "chip_s": 2.0,
+ "bin_ms": 100,
+ "repeats": 3,
+ "direction": "fall",
+ "stimulus": {
+  "transitions": 25,
+  "confirmed": 25,
+  "failed": 0
+ },
+ "stim_mode": "edge",
+ "scan_id": "s_001",
+ "drops": {
+  "table_full": 0,
+  "serial": 0,
+  "late_bins": 0,
+  "unparsed": 194,
+  "malformed": 0
+ },
+ "t0_source": "measured+skew",
+ "mode": "live",
+ "_note": "8 Sep 23:41. The capture that exposed two defects: the phone's torch mark was timestamped after the awaited torch command, putting t0 up to a second late so the real response landed at -0.70 s, outside the old (0.05, 2.0) lag window; and the response was a sustained LEVEL change (torch held in the lens) while the detector searched only edges. Recorded verdict at the time: CLEAR, p=0.8271. The sidecar's direction='fall' is itself a symptom - a 1 s error inverts the 20 s check's 2 s-period phase exactly."
+}
