@@ -1,6 +1,6 @@
 <div align="center">
 
-# NAZAR (نـظـر)
+# NAZAR
 ### Wi-Fi Causality Detection of Concealed Cameras
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -66,8 +66,12 @@ Even though the payload is encrypted (WPA2/WPA3, TLS/SRTP), raw 802.11 MAC frame
 
 ### 1. Coded Optical Excitation (Processing Gain)
 Rather than requiring erratic human motion (jumping jacks, towel waving) or a naive periodic flash, NAZAR strobes the smartphone torch using a **15-chip maximal-length sequence (m-sequence)**:
-$$\text{M\_SEQUENCE} = [1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0]$$
-- **Timing:** 2.0 s per chip ($30\text{ s}$ per sequence pass), repeated 3 times ($90\text{ s}$ total).
+
+```python
+M_SEQUENCE = [1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0]
+```
+
+- **Timing:** 2.0 seconds per chip (30 seconds per sequence pass), repeated 3 times (90 seconds total).
 - **Processing Gain:** The autocorrelation of an m-sequence is a Kronecker delta, yielding **~12 dB of processing gain** over ambient Wi-Fi noise without user fatigue.
 
 ### 2. High-Speed Promiscuous Sniffer Firmware (`firmware/`)
@@ -76,12 +80,16 @@ Implemented on a commodity **ESP32-WROOM-32** using dual-core FreeRTOS:
 - **Core 1 (100 ms Aggregation):** Atomically snapshots active devices every 100 ms and emits clean CSV telemetry over UART at **460,800 baud** with loss counters (`#DROP: table_full, serial_tx, late_bins`).
 
 ### 3. Heavy-Tailed Signal Processing & Causality Engine (`backend/detector.py`)
-- **Normal-Scores Rank Transform:** Camera bitrates exhibit extreme kurtosis (MAD/median ratios of 0.83–1.27) due to periodic I-frames. Transforming packet counts to rank quantiles ($r / (N+1) \to \Phi^{-1}(r)$) prevents outlier bursts from biasing the correlation.
+- **Normal-Scores Rank Transform:** Camera bitrates exhibit extreme kurtosis (MAD/median ratios of 0.83–1.27) due to periodic I-frames. Transforming packet counts to rank quantiles (`r / (N + 1) → Φ⁻¹(r)`) prevents outlier bursts from biasing the correlation.
 - **Circular FFT Cross-Correlation:** Zero-padded circular correlation guarantees strict mathematical exchangeability of temporal shifts, eliminating edge-truncation bias.
 - **Dual Response Shapes:** Searches both direct lens sensor saturation (**Level Mode**) and off-axis transient re-encodings (**Edge Mode**), combined via the **Westfall-Young minP** algorithm to prevent multiple-comparison penalties.
-- **2,000-Surrogate Permutation Test:** Verifies the observed peak against 2,000 balanced binary sequences that were *never transmitted*, returning an empirical p-value:
-  $$p = \frac{\sum_{i=1}^{M} \mathbb{I}(\text{null\_peak}_i \ge \text{observed\_peak}) + 1}{M + 1}$$
-  **Verdict:** If $p < 0.01$ and lag $\in [-0.8\text{ s}, +2.2\text{ s}]$, the system confirms **`WATCHING`** with 99% statistical confidence.
+- **2,000-Surrogate Permutation Test:** Verifies the observed peak correlation against 2,000 balanced binary sequences that were *never transmitted*, returning an empirical p-value:
+
+```math
+p = \frac{\sum_{i=1}^{M} \mathbb{I}(R_i^{\text{null}} \ge R^{\text{observed}}) + 1}{M + 1}
+```
+
+- **Verdict:** If `p < 0.01` and physical lag is within `[-0.8 s, +2.2 s]`, the system confirms **`WATCHING`** with 99% statistical confidence.
 
 ### 4. Physical Localisation ("Find It" Screen)
 Once confirmed, the user pinpoints the physical housing:
@@ -103,11 +111,11 @@ All metrics derived from physical hardware trials on a **CP Plus CP-E35A** 3MP p
 
 | Test Gate | Protocol | Measured Result | Verdict |
 |---|---|---|---|
-| **Gate 1: Physical Modulation** | Controlled 6-wave hand motion trial (`fixtures/wave_*.csv`) | **6/6 waves** induced immediate bitrate lift (avg $+1,238\text{ kbps}$, $1.89\times$ baseline, sign-test $p = 0.0156$) | **PASSED** |
-| **Gate 2: Coded Target Scan** | 90 s m-sequence strobe on active camera (`fixtures/scan_*_camera3.csv`) | Peak correlation: **0.439**, physical lag: **$+0.50\text{ s}$**, empirical **$p = 0.0055$** ($p < 0.01$) | **WATCHING** |
-| **Gate 2: Negative Control** | Laptop streaming 1080p video, unable to see light (`fixtures/scan_*_laptop.csv`) | Empirical **$p = 0.4748$** (statistically indistinguishable from pure chance) | **CLEAR** |
-| **Phone Torch Latency Fix** | Verified on direct-lens direct capture (`fixtures/scan_*_negative_lag.csv`) | Re-derived: **$p = 0.0060$**, lag: **$-0.70\text{ s}$**, shape: `level` | **WATCHING** |
-| **False-Positive Calibration** | 800 synthetic Monte Carlo trials across heavy-tailed Student-t noise | False-positive rate at $p < 0.01$: **$0.0025$** (ultra-conservative) | **CALIBRATED** |
+| **Gate 1: Physical Modulation** | Controlled 6-wave hand motion trial (`fixtures/wave_*.csv`) | **6/6 waves** induced immediate bitrate lift (avg +1,238 kbps, 1.89x baseline, sign-test p = 0.0156) | **PASSED** |
+| **Gate 2: Coded Target Scan** | 90 s m-sequence strobe on active camera (`fixtures/scan_*_camera3.csv`) | Peak correlation: **0.439**, physical lag: **+0.50 s**, empirical **p = 0.0055** (p < 0.01) | **WATCHING** |
+| **Gate 2: Negative Control** | Laptop streaming 1080p video, unable to see light (`fixtures/scan_*_laptop.csv`) | Empirical **p = 0.4748** (statistically indistinguishable from pure chance) | **CLEAR** |
+| **Phone Torch Latency Fix** | Verified on direct-lens direct capture (`fixtures/scan_*_negative_lag.csv`) | Re-derived: **p = 0.0060**, lag: **-0.70 s**, shape: `level` | **WATCHING** |
+| **False-Positive Calibration** | 800 synthetic Monte Carlo trials across heavy-tailed Student-t noise | False-positive rate at p < 0.01: **0.0025** (ultra-conservative) | **CALIBRATED** |
 
 ---
 
@@ -227,9 +235,6 @@ NAZAR/
 │   ├── set_max_devices.py     # Synchronizes device table size between backend & sketch
 │   ├── nazar_read.py          # Standalone real-time ASCII bitrate sparkline monitor
 │   └── nazar_gate2.py         # CLI-driven stimulus scan and detector runner
-├── docs/
-│   ├── NAZAR_PRD.md           # Authoritative Product Requirements Document
-│   └── RUNBOOK.md             # Operational runbook, failure recovery, and sweep guide
 ├── LICENSE                    # MIT License
 ├── requirements.txt           # Python package requirements
 └── README.md                  # System overview and documentation (this file)
@@ -258,7 +263,7 @@ The FastAPI service exposes RESTful endpoints and Server-Sent Events (SSE):
 To maintain scientific integrity, NAZAR adheres to strict boundaries:
 - **Active Streaming Only:** NAZAR detects cameras actively streaming live video over Wi-Fi. It cannot detect unpowered cameras or offline cameras recording solely to internal SD cards.
 - **Meaning of `CLEAR`:** A `CLEAR` verdict strictly means that no statistically significant causal response was observed during the 90-second window. It is not an absolute certificate of absence.
-- **Pre-Filter vs. Verdict:** The Machine Learning classifier is solely an advisory pre-filter to rank candidates; the **matched-filter permutation test ($p < 0.01$) is the sole basis for a detection verdict**.
+- **Pre-Filter vs. Verdict:** The Machine Learning classifier is solely an advisory pre-filter to rank candidates; the **matched-filter permutation test (p < 0.01) is the sole basis for a detection verdict**.
 
 ---
 

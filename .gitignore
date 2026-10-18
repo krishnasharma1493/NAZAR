@@ -18,6 +18,7 @@ signing_key*
 demo_tls_*
 
 # Internal documentation, presentation runbooks, and team notes
+docs/
 about.md
 TEAM_AND_PROJECT_PREP.md
 docs/PROJECT_PREP.md
